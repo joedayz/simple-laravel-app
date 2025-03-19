@@ -7,14 +7,61 @@ pipeline {
         PATH = "${env.PATH};${PHP_PATH};${COMPOSER_HOME};${NODE_HOME}"
     }
 
-    stages {
-        stage('Check Versions') {
+    // stages {
+    //     stage('Check Versions') {
+    //         steps {
+    //             bat 'php -v'
+    //             bat 'composer -V'
+    //             bat '"C:\\Program Files\\nodejs\\node.exe" -v'
+    //             bat '"C:\\Program Files\\nodejs\\npm.cmd" -v'
+    //         }
+    //     }
+    // }
+
+        stages {
+        stage('Checkout Code') {
             steps {
-                bat 'php -v'
-                bat 'composer -V'
-                bat '"C:\\Program Files\\nodejs\\node.exe" -v'
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" -v'
+                git branch: 'main', url: 'https://github.com/joedayz/simple-laravel-app.git'
+            }
+        }
+
+        stage('Set Environment') {
+            steps {
+                bat 'copy .env.example .env'
+                bat 'php artisan key:generate'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                bat 'composer install --no-interaction --prefer-dist'
+                bat 'npm install'
+            }
+        }
+
+        stage('Run Migrations') {
+            steps {
+                bat 'php artisan migrate --force'
+            }
+        }
+
+        stage('Build Assets') {
+            steps {
+                bat 'npm run build'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                bat 'php artisan test'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deployment stage (adjust as needed)'
             }
         }
     }
+
 }
