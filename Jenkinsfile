@@ -18,10 +18,16 @@ pipeline {
     //     }
     // }
 
-        stages {
+     stages {
         stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/joedayz/simple-laravel-app.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                bat 'composer install --no-interaction --prefer-dist'
             }
         }
 
@@ -29,13 +35,6 @@ pipeline {
             steps {
                 bat 'copy .env.example .env'
                 bat 'php artisan key:generate'
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                bat 'composer install --no-interaction --prefer-dist'
-                bat 'npm install'
             }
         }
 
@@ -47,6 +46,7 @@ pipeline {
 
         stage('Build Assets') {
             steps {
+                bat 'npm install'
                 bat 'npm run build'
             }
         }
